@@ -10,13 +10,16 @@ const Part = (props) => {
   return (
     <div>
     <p>
-    {props.part1} {props.exercises1}
+      {props.part1} {props.exercises1}
     </p>
     <p>
       {props.part2} {props.exercises2}
     </p>
     <p>
       {props.part3} {props.exercises3}
+    </p> 
+    <p>
+      {props.part4} {props.exercises4}
     </p> 
     </div>
   )
@@ -28,18 +31,21 @@ const Content = (props) => {
     <Part part1={props.course.parts[0].name} exercises1={props.course.parts[0].exercises}/>
     <Part part2={props.course.parts[1].name} exercises2={props.course.parts[1].exercises}/>
     <Part part3={props.course.parts[2].name} exercises3={props.course.parts[2].exercises}/>
+    <Part part4={props.course.parts[3].name} exercises4={props.course.parts[3].exercises}/>
   </div>)
 }
 const Total = (props) => {
   return (
-    <><p>Number of exercises {props.course.parts[0].exercises + props.course.parts[1].exercises + props.course.parts[2].exercises}</p></>
+    <><p><b>Total of {props.course.parts[0].exercises + props.course.parts[1].exercises + props.course.parts[2].exercises + props.course.parts[3].exercises} exercises</b></p></>
   ) 
 }
 const Course = (props) => {
   return (
     <div>
       <Header course={props.course}/>
-    <Content course={props.course}/></div>
+      <Content course={props.course}/>
+      <Total course={props.course}/>
+      </div>
   )
 }
 //you can only make a react component with a capitalize variable
@@ -58,6 +64,10 @@ const App = () => {
       {
         name: 'State of a component',
         exercises: 14
+      },
+      {
+        name: 'Redux',
+        exercises: 11
       }
     ]
   }
