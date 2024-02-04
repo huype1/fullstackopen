@@ -22,6 +22,7 @@ const Part = (props) => {
   )
 }
 const Content = (props) => {
+  console.log(props.course.parts[2].exercises)
   return (
     <div>
     <Part part1={props.course.parts[0].name} exercises1={props.course.parts[0].exercises}/>
@@ -33,6 +34,13 @@ const Total = (props) => {
   return (
     <><p>Number of exercises {props.course.parts[0].exercises + props.course.parts[1].exercises + props.course.parts[2].exercises}</p></>
   ) 
+}
+const Course = (props) => {
+  return (
+    <div>
+      <Header course={props.course}/>
+    <Content course={props.course}/></div>
+  )
 }
 //you can only make a react component with a capitalize variable
 const App = () => {
@@ -54,13 +62,7 @@ const App = () => {
     ]
   }
 
-  return (
-    <div>
-      <Header course={course}/>
-      <Content course={course}/>
-      <Total course={course}/>
-    </div>
-  )
+  return <Course course={course} />
 }
 
 export default App
