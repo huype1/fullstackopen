@@ -2,77 +2,107 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 
 const Header = (props) => {
+console.log(props)
   return (
-      <h1>{props.course.name}</h1>
+      <h2>{props.course.name}</h2>
   )
 }
 const Part = (props) => {
   return (
     <div>
     <p>
-      {props.part1} {props.exercises1}
+      {props.part} {props.exercises}
     </p>
-    <p>
-      {props.part2} {props.exercises2}
-    </p>
-    <p>
-      {props.part3} {props.exercises3}
-    </p> 
-    <p>
-      {props.part4} {props.exercises4}
-    </p> 
     </div>
   )
 }
 const Content = (props) => {
-  console.log(props.course.parts[2].exercises)
+  const {parts} = props.course
+  //map the array parts with iterate variable = part
   return (
     <div>
-    <Part part1={props.course.parts[0].name} exercises1={props.course.parts[0].exercises}/>
-    <Part part2={props.course.parts[1].name} exercises2={props.course.parts[1].exercises}/>
-    <Part part3={props.course.parts[2].name} exercises3={props.course.parts[2].exercises}/>
-    <Part part4={props.course.parts[3].name} exercises4={props.course.parts[3].exercises}/>
-  </div>)
-}
-const Total = (props) => {
-  return (
-    <><p><b>Total of {props.course.parts[0].exercises + props.course.parts[1].exercises + props.course.parts[2].exercises + props.course.parts[3].exercises} exercises</b></p></>
-  ) 
-}
-const Course = (props) => {
-  return (
-    <div>
-      <Header course={props.course}/>
-      <Content course={props.course}/>
-      <Total course={props.course}/>
-      </div>
+      {parts.map(part => <Part part={part.name} exercises={part.exercises}/>)}
+    </div>
   )
 }
+
+const Total = ({course}) => {
+  let section = course.parts
+  let totalex = section.reduce((sum, part) => sum + part.exercises, 0)
+  return (
+    <><p><b>Total of {totalex} exercises</b></p></>
+  ) 
+}
+
+const Course = ({ course }) => {
+  return (
+     <>
+       {
+        course.map((section, index) => 
+         <div key={index}>
+           <Header course={section} />
+           <Content course={section} />
+           <Total course={section} />
+         </div>
+        )
+       }
+     </>
+  )
+}
+ 
+
 //you can only make a react component with a capitalize variable
 const App = () => {
-  const course = {
+  const course = [
+    {
     name: 'Half Stack application development',
+    id: 1,
     parts: [
       {
         name: 'Fundamentals of React',
-        exercises: 10
+        exercises: 10,
+        id: 1
       },
       {
         name: 'Using props to pass data',
-        exercises: 7
+        exercises: 7,
+        id: 2
       },
       {
         name: 'State of a component',
-        exercises: 14
+        exercises: 14,
+        id: 3
       },
       {
         name: 'Redux',
-        exercises: 11
+        exercises: 11,
+        id: 4
       }
     ]
-  }
+  }, 
+  {
+    name: 'Node.js',
+    id: 2,
+    parts: [
+      {
+        name: 'Routing',
+        exercises: 3,
+        id: 1
+      },
+      {
+        name: 'Middlewares',
+        exercises: 7,
+        id: 2
+      }
+    ]
+  }]
 
-  return <Course course={course} />
+  return (
+    <div>
+      <h1>Web development curriculum</h1>
+      <Course course={course} />
+    </div>
+  )
 }
 
 export default App
