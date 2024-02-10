@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios'
+import noteService from "./services/notes"
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Person from "./components/Person";
 const App = () => {
   const [persons, setPersons] = useState([]);
   
-  useEffect(()=> {
-    console.log("effect")
-    axios
-      .get('http://localhost:3001/persons')
+  useEffect( () => {
+    noteService
+      .getAll()
       .then(response => {
-        console.log('promise fulfilled')
         setPersons(response.data)
       })
   }, [])
   
-  console.log('render', persons.length, 'person data') 
 
   const [search, setSearch] = useState("");
   const handleSearch = (event) => {
@@ -40,11 +37,10 @@ const App = () => {
   const addPeople = (event) => {
     //force the page to not reload
     event.preventDefault();
-    //create a person with input data
+    //create a person with input data don't create id because json-server will do it automatically
     const newPerson = {
       name: newName,
       number: newNumber,
-      id: persons.length + 1,
     };
     //check if this name exist
     if (persons.find((person) => person.name.toLowerCase() === newPerson.name.toLowerCase())) {
@@ -63,10 +59,15 @@ const App = () => {
     else {
       //add that person into persons object array
       //using concat so that the original array is not mutated
-      setPersons(persons.concat(newPerson));
-      //reset the input as blank
-      setNewName("");
-      setNumber("");
+      noteService
+      .create(newPerson)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        //reset the input as blank
+        setNewName("");
+        setNumber("");
+    })
+      
     }
   };
   //to be able to show all the text typed in the input
