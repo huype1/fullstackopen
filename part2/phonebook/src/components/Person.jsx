@@ -1,11 +1,12 @@
 import PersonForm from './PersonForm'
-const Person = ({ personToShow }) => {
+const Person = ({ personToShow, RemoveNumber }) => {
     return (
         <div>
             <ul>
-                {personToShow.map(person => <li key={person.id}>{person.name} {person.number}</li>)}
-                <button onChange={RemoveNumber(personToShow.id)}>Delete</button>
+                {personToShow.map(person => <li key={person.id}>{person.name} {person.number} <button onClick={() => {RemoveNumber(person.id)}}>Delete</button></li> )}
+
             </ul>
+            
         </div>
     )
 }
