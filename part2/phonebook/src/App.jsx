@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import './index.css'
 import noteService from "./services/notes";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
@@ -41,6 +42,8 @@ const App = () => {
       );
   const [newName, setNewName] = useState("");
   const [newNumber, setNumber] = useState("");
+
+  const [addPerson, setAddPerson] = useState('Person added')
 
   //to be able to show all the text typed in the input
   //you'll need an event handler that called setNewName to change it's value
@@ -119,6 +122,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={addedPerson} />
       <Filter search={search} handleSearch={handleSearch} />
 
       <h2>Add a new</h2>
