@@ -4,13 +4,13 @@ import noteService from "./services/notes";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Person from "./components/Person";
-const Notification = ({ message }) => {
+const Notification = ({ message, problem }) => {
   if (message === null) {
     return null
   }
 
   return (
-    <div className='addPerson'>
+    <div className={problem}>
       {message}
     </div>
   )
@@ -43,7 +43,8 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNumber] = useState("");
 
-  const [addPerson, setAddPerson] = useState('Person added')
+  const [addPerson, setAddPerson] = useState(null)
+  const [problem, setProblem] = useState(null)
 
   //to be able to show all the text typed in the input
   //you'll need an event handler that called setNewName to change it's value
@@ -64,6 +65,18 @@ const App = () => {
       if(window.confirm(`${newPerson.name} is already in the phonebook, replace the old number with a new one?`))
       {
         changeNumber(used.id, newPerson.number)
+        //add data
+        setPersons(persons.concat(response.data));
+
+        //notification
+        setAddPerson(
+          `${newPerson.name} number changed`
+        )
+        setProblem("addPerson")
+        setTimeout(() => {
+          setAddPerson(null)
+        }, 5000)
+
       }
       //reset the input as blank
       setNewName("");
@@ -77,7 +90,18 @@ const App = () => {
       //add that person into persons object array
       //using concat so that the original array is not mutated
       noteService.create(newPerson).then((response) => {
+        //add data
         setPersons(persons.concat(response.data));
+
+        //notification
+        setAddPerson(
+          `Added ${newPerson.name} `
+        )
+        setProblem("addPerson")
+        setTimeout(() => {
+          setAddPerson(null)
+        }, 5000)
+
         //reset the input as blank
         setNewName("");
         setNumber("");
@@ -92,18 +116,12 @@ const App = () => {
       noteService
         .remove(personid)
         .then(() => {
-          noteService
-            .getAll()
-            .then((response) => {
-              console.log("Updated list of people:", response.data);
-            })
-            .catch((error) => {
-              console.error("Error fetching updated list:", error);
+            noteService.getAll().then((response) => {
+              setPersons(response.data);
             });
+
         })
-        .catch((error) => {
-          console.error("Error deleting item:", error);
-        });
+
     }
   }
 
@@ -115,6 +133,20 @@ const App = () => {
     .then(response => {
       setPersons(persons.map(person => person.id !== usedId ? person : response.data))
     })
+    .catch(error => {
+      //notification
+      setAddPerson(
+        `${numberPerson.name} has been deleted from the server `
+      )
+      setProblem("error")
+      setTimeout(() => {
+        setAddPerson(null)
+      }, 5000)
+      setPersons(persons.filter(n => n.id !== usedId))
+      //reset the input as blank
+      setNewName("");
+      setNumber("");
+    })
   }
 
   
@@ -122,7 +154,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={addedPerson} />
+      <Notification message={addPerson} problem={problem}/>
       <Filter search={search} handleSearch={handleSearch} />
 
       <h2>Add a new</h2>
