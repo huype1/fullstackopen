@@ -2,9 +2,11 @@ const express = require('express')
 const app = express()
 app.use(express.json())
 const morgan = require('morgan')
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :person'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms '))
 const cors = require('cors')
+app.use(express.static('dist'))
 app.use(cors())
+
 
 
 let persons = [
@@ -37,9 +39,7 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-  
   response.json(persons)
-  
 })
 
 app.get('/api/info', (request, response) => {
@@ -92,7 +92,6 @@ app.post('/api/persons', (request, response) => {
   }
   
     
-  
   persons = persons.concat(person)
   response.json(person)
 })
