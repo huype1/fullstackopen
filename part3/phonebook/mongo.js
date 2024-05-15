@@ -1,6 +1,6 @@
 
 const mongoose = require('mongoose')
-
+const { Schema } = mongoose;
 if (process.argv.length < 3) {
     console.log("Give password as an arguement")
     process.exit(1)
@@ -8,15 +8,23 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2]
 
-const url = `mongodb+srv://huype1:${password}@fullstackopen.lgsoxgt.mongodb.net/phonebook?retryWrites=true&w=majority&appName=fullstackopen`
+const url = process.env.MONGODB_URI
 
 mongoose.set('strictQuery', false)
 
 mongoose.connect(url)
 
-const personSchema = new mongoose.Schema({
-    "name" : String,
-    "number" : String,
+const personSchema = new Schema({
+    "name" : {
+        type: String,
+        minLength:3, 
+        required: true
+    },
+    "number" : {
+        type: String,
+        minLength: 8,
+        required: true
+    }
 })
 const Person = mongoose.model('Person', personSchema)
 
@@ -26,24 +34,24 @@ personSchema.set('toJSON', {
       delete returnedObject._id
       delete returnedObject.__v
     }
-  })
+})
 
-if (process.argv === 3) {
-    const person = new Person({
-        "name" : process.argv[3],
-        "number": process.argv[4],
-    })
+// if (process.argv === 3) {
+//     const person = new Person({
+//         "name" : process.argv[3],
+//         "number": process.argv[4],
+//     })
     
-    person.save().then(result => {
-        console.log(`Added ${result.name} ${result.number} to phonebook`);
-        mongoose.connection.close()
-    })
-}
-else {
-    Person.find({}).then(result => {
-        result.forEach(person => {
-            console.log(`${person.name} ${person.number}`)
-        })
-        mongoose.connection.close()
-    })
-}
+//     person.save().then(result => {
+//         console.log(`Added ${result.name} ${result.number} to phonebook`);
+//         mongoose.connection.close()
+//     })
+// }
+// else {
+//     Person.find({}).then(result => {
+//         result.forEach(person => {
+//             console.log(`${person.name} ${person.number}`)
+//         })
+//         mongoose.connection.close()
+//     })
+// }

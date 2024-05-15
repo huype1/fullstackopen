@@ -1,11 +1,13 @@
-GET http://localhost:3001/api/persons/66312ca40c5aedfe8e72b764
+GET http://localhost:3001/api/persons/
 ###
-DELETE    http://localhost:3001/api/persons/663130f50ead56a163540317
+PUT http://localhost:3001/api/persons/663ef8da6c52829e0b6c4f9a
 Content-Type: application/json
 
 {
     
-    "name" : "Drake",
-    "number" : "320491-2352-123"
+    "name" : "Post Malone",
+    "number" : "38658-5325854"
 }
 
+###
+DELETE http://localhost:3001/api/persons/6639150aadd60d3da7e02d6a

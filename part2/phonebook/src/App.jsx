@@ -4,6 +4,7 @@ import noteService from "./services/notes";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Person from "./components/Person";
+
 const Notification = ({ message, problem }) => {
   if (message === null) {
     return null
@@ -15,6 +16,8 @@ const Notification = ({ message, problem }) => {
     </div>
   )
 }
+
+
 const App = () => {
   const [persons, setPersons] = useState([]);
 
@@ -25,6 +28,7 @@ const App = () => {
   }, []);
 
   const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(true);
   const handleSearch = (event) => {
     setSearch(event.target.value);
     if (event.target.value.length === 0) {
@@ -34,7 +38,6 @@ const App = () => {
     }
   };
 
-  const [showAll, setShowAll] = useState(true);
   const personToShow = showAll
     ? persons
     : persons.filter(
@@ -59,6 +62,8 @@ const App = () => {
       name: newName,
       number: newNumber,
     };
+
+    const repeatedname = persons.find((person) => person.number === newPerson.number)
     const used = persons.find((person) => person.name.toLowerCase() === newPerson.name.toLowerCase())
     //check if this name exist
     if ( used && newPerson.number) {
@@ -72,7 +77,7 @@ const App = () => {
         setAddPerson(
           `${newPerson.name} number changed`
         )
-        setProblem("addPerson")
+        setProblem("changeNumber")
         setTimeout(() => {
           setAddPerson(null)
         }, 5000)
@@ -81,8 +86,8 @@ const App = () => {
       //reset the input as blank
       setNewName("");
       setNumber("");
-    } else if (persons.find((person) => person.number === newPerson.number)) {
-      window.alert(`${newPerson.name} already have this number`);
+    } else if (repeatedname) {
+      window.alert(`${repeatedname.name} already have this number`);
       //reset the input as blank
       setNewName("");
       setNumber("");
@@ -92,7 +97,6 @@ const App = () => {
       noteService.create(newPerson).then((response) => {
         //add data
         setPersons(persons.concat(response.data));
-
         //notification
         setAddPerson(
           `Added ${newPerson.name} `
@@ -105,7 +109,14 @@ const App = () => {
         //reset the input as blank
         setNewName("");
         setNumber("");
-      });
+      })
+      .catch(error => {
+        setAddPerson(error.response.data.error)
+        setProblem("error")
+        setTimeout(() => {
+          setAddPerson(null)
+        }, 5000)
+      })
     }
   };
   
@@ -125,9 +136,10 @@ const App = () => {
     }
   }
 
-  const changeNumber = (usedId, numberChanging) => {
+  const changeNumber = (usedId, numberChanging, event) => {
     const numberPerson = persons.find(person => person.id === usedId)
     const changePerson = { ...numberPerson, number: numberChanging }
+    event.preventDefault();
     noteService 
     .update(usedId, changePerson)
     .then(response => {
