@@ -9,7 +9,7 @@ app.use(express.json())
 const morgan = require('morgan')
 app.use(morgan(':method :url :status :res[content-length] :response-time ms :person'))
 morgan.token('person',  function (req, res) {
-      return JSON.stringify(req.body);
+  return JSON.stringify(req.body)
 })
 const cors = require('cors')
 app.use(cors())
@@ -43,32 +43,32 @@ app.get('/api/persons', (request, response, next) => {
   Person.find({}).then(persons => {
     response.json(persons)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 //get information about the number of people and current time
 app.get('/api/info', (request, response, next) => {
   const time = new Date()
   Person.countDocuments({})
- .then(count => {
-  response.send(`
+    .then(count => {
+      response.send(`
   <p>Phonebook has info ${count} for people</p>
   <p>${time}</p>`)
- })
- .catch(error => next(error));
+    })
+    .catch(error => next(error))
   
 })
 
 //search by people id
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id).then(person => {
-      if (person) {
-        response.json(person)
-      } 
-      else {
-        response.status(404).end()
-      }
-    })
+    if (person) {
+      response.json(person)
+    } 
+    else {
+      response.status(404).end()
+    }
+  })
 
     .catch(error => next(error))
 
@@ -77,11 +77,11 @@ app.get('/api/persons/:id', (request, response, next) => {
 //delete a person from the phonebook
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-  .then(result => {
+    .then(result => {
     //204 is used for no content along with 404 so we will use for deletion
-    response.status(204).end()
-  })
-  .catch(error => next(error))
+      response.status(204).end()
+    })
+    .catch(error => next(error))
   
 })
 
@@ -106,8 +106,8 @@ app.post('/api/persons/', (request, response, next) => {
   
   
   person.save()
-  .then(savedPerson =>  response.json(savedPerson))
-  .catch(error => next(error))
+    .then(savedPerson =>  response.json(savedPerson))
+    .catch(error => next(error))
   
   
 })
@@ -140,8 +140,8 @@ app.use(unknownEndpoint)
 
 
 const errorHandler = (error, request, response, next) => {
-  console.log(error.message);
-  if (error.name === "CastError") {
+  console.log(error.message)
+  if (error.name === 'CastError') {
     return response.status(404).send({ error: 'malformatted id'})
   }
   else if (error.name === 'ValidationError') {
@@ -153,5 +153,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log("The server running on " + PORT)
+  console.log('The server running on ' + PORT)
 })
