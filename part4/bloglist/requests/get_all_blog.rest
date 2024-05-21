@@ -1,0 +1,13 @@
+POST http://localhost:3003/api/blogs/
+Content-Type: application/json
+
+{ 
+   "title" : "Im bad at coding",
+   "author" : "Huy pe",
+   "url" : "Skibidi_sigma.net",
+   "likes" : 400 
+}
+### //vai lon sech this shit is absolutely retarded, you'll need to put content type next to your request or else it will not recognise the data input
+GET http://localhost:3003/api/blogs/
+###
+DELETE http://localhost:3003/api/blogs/664c236dccf94640100e0963

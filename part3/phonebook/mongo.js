@@ -6,7 +6,7 @@ if (process.argv.length < 3) {
   process.exit(1)
 }
 
-const password = process.argv[2]
+// const password = process.argv[2]
 
 const url = process.env.MONGODB_URI
 
@@ -17,7 +17,7 @@ mongoose.connect(url)
 const personSchema = new Schema({
   'name' : {
     type: String,
-    minLength:3, 
+    minLength:3,
     required: true
   },
   'number' : {
@@ -41,7 +41,7 @@ personSchema.set('toJSON', {
 //         "name" : process.argv[3],
 //         "number": process.argv[4],
 //     })
-    
+
 //     person.save().then(result => {
 //         console.log(`Added ${result.name} ${result.number} to phonebook`);
 //         mongoose.connection.close()
