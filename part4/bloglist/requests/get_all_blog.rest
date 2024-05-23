@@ -2,9 +2,9 @@ POST http://localhost:3003/api/blogs/
 Content-Type: application/json
 
 { 
-   "title" : "i want to be a rapper",
+   "title" : "I want to be a rap per",
    "author" : "Huy pe",
-   "url" : "gaydrake.com",
+   "url" : "Skibidi_sasdfigma.net",
    "likes" : 400 
 }
 ### //vai lon sech this shit is absolutely retarded, you'll need to put content type next to your request or else it will not recognise the data input
