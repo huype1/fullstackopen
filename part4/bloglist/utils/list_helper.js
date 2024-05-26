@@ -15,6 +15,7 @@ const totalLikes = (blogs) => {
 };
 
 const favouriteBlog = (blogs) => {
+  //for every blog object, return a new object with only map numbers and array got passed to find the max
   const mostLikes = Math.max(...blogs.map((blog) => blog.likes));
   return blogs.length === 0
     ? {}
@@ -23,14 +24,18 @@ const favouriteBlog = (blogs) => {
           title: blog.title,
           author: blog.author,
           likes: blog.likes,
-        }))
+        })) //find the object with that most numbers
         .find((blog) => mostLikes === blog.likes);
 };
 
 const mostBlogs = (blogs) => {
+  //only return the list with author name
   const simplifyBlogs = _.map(blogs, "author");
+  //count the numbers of author name, similar to using COUNT with GROUP BY in SQL
   const count = _.countBy(simplifyBlogs);
+  //find the most appeared author based on the last object created
   const mostBlogs = _.maxBy(Object.values(count));
+  //use the highest value to find the original key which is the author's name
   const authorName = _.findKey(count, (blog) => blog === mostBlogs);
   return blogs.length === 0
     ? {}

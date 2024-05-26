@@ -7,9 +7,8 @@ const middleware = require('./utils/middleware')
 const cors = require('cors')
 const blogsRouter = require('./controller/blogs')
 
-
 mongoose.set('strictQuery', false)
-mongoose.connect(config.mongoUrl)
+mongoose.connect(config.MONGO_URI)
 .then(() => {
     logger.info('connected to MongoDB');
 })
