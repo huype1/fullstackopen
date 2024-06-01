@@ -2,12 +2,12 @@ POST http://localhost:3003/api/blogs/
 Content-Type: application/json
 
 { 
-   "title" : "I want to be a rap per",
+   "title" : "I want to be a millionare",
    "author" : "Huy pe",
-   "url" : "Skibidi_sasdfigma.net",
+   "url" : "fanumtax.net",
    "likes" : 400 
 }
 ### //vai lon sech this shit is absolutely retarded, you'll need to put content type next to your request or else it will not recognise the data input
 GET http://localhost:3003/api/blogs/
 ###
-DELETE http://localhost:3003/api/blogs/664c236dccf94640100e0963
+DELETE http://localhost:3003/api/blogs/664ccc9c55fd90d59c856c36

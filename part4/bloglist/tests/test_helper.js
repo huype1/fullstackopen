@@ -1,5 +1,5 @@
 const Blog = require('../models/blog')
-const initialBlogs = [
+const blogs = [
   {
     _id: "5a422a851b54a676234d17f7",
     title: "React patterns",
@@ -30,15 +30,15 @@ const nonExistingId = async () => {
 
 }
 
-const allinitialBlogs = async () => {
+const getAllBlogs = async () => {
     const allblog = await Blog.find({})
     return allblog.map(blog => blog.toJSON())
 
 }
 
 module.exports = {
-    initialBlogs,
+    blogs,
     nonExistingId,
-    allinitialBlogs,
+    getAllBlogs,
 
 }
