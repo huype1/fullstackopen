@@ -1,13 +1,13 @@
-POST http://localhost:3003/api/blogs/
+PUT http://localhost:3003/api/blogs/664c24f64ee54bc2a07dfc74
 Content-Type: application/json
 
 { 
-   "title" : "I want to be a millionare",
+   "title" : "I want to be a nigga",
    "author" : "Huy pe",
    "url" : "fanumtax.net",
-   "likes" : 400 
+   "likes" : 12
 }
 ### //vai lon sech this shit is absolutely retarded, you'll need to put content type next to your request or else it will not recognise the data input
-GET http://localhost:3003/api/blogs/
+GET http://localhost:3003/api/blogs/664c24f64ee54bc2a07dfc74
 ###
 DELETE http://localhost:3003/api/blogs/664ccc9c55fd90d59c856c36
