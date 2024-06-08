@@ -1,4 +1,4 @@
-const { test, after, beforeEach } = require("node:test");
+const { test, after, beforeEach, describe } = require("node:test");
 const assert = require("node:assert");
 const supertest = require("supertest");
 const mongoose = require("mongoose");
@@ -6,6 +6,7 @@ const helper = require("./test_helper");
 const app = require("../app");
 const api = supertest(app);
 const Blog = require("../models/blog");
+
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -42,7 +43,7 @@ test("The first blog is about react", async () => {
   assert.strictEqual(title.includes("React patterns"), true);
 });
 
-test.only("Read only one blog with specific id", async() => {
+test("Read only one blog with specific id", async() => {
   const Blogs = await helper.getAllBlogs()
   const firstBlog = Blogs[0]
   const response = await api.get("/api/blogs/5a422a851b54a676234d17f7").expect(200).expect('Content-Type', /application\/json/)
@@ -151,6 +152,8 @@ test("update a blog using old id", async () => {
   const title = response.map((blog) => blog.title);
   assert(title.includes("TDD harms architecture"));
 })
+
+
 after(async () => {
   await mongoose.connection.close();
 });
