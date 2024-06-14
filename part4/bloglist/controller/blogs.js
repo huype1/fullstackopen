@@ -2,6 +2,8 @@ const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user")
 const jwt = require('jsonwebtoken')
+const middleware = require('../utils/middleware');
+const { error } = require("../utils/logger");
 
 blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog.find({}).populate('user', {username: 1, name: 1});
@@ -17,18 +19,12 @@ blogsRouter.get("/:id", async (request, response) => {
   }
 });
 
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
-  }
-  return null
-}
 
 blogsRouter.post("/", async (request, response) => {
   const body = request.body;
+  const userPost = request.user 
 
-  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
   if (!decodedToken.id) {
     return response.status(401).json({ error: "invalid token"})
   }
@@ -47,7 +43,6 @@ blogsRouter.post("/", async (request, response) => {
     blog.likes = 0;
   }
   const savedBlogs = await blog.save();
-  console.log(savedBlogs)
   user.blogs = user.blogs.concat(savedBlogs._id)
   await user.save()
 
@@ -56,12 +51,10 @@ blogsRouter.post("/", async (request, response) => {
 
 blogsRouter.put("/:id", async (request, response, next) => {
   const blog = request.body 
-
   if (isNaN(blog.likes)) {
     blog.likes = 0;
   }  
 
-  // response.json(updatedBlog);
     try {
     const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
       new: true,
@@ -77,10 +70,34 @@ blogsRouter.put("/:id", async (request, response, next) => {
   
 });
 
-blogsRouter.delete("/:id", async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id);
-  //204 is used for no content along with 404 so we will use for deletion
-  response.status(204).end();
+blogsRouter.delete("/:id", async (request, response, next) => {
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  const blog = await Blog.findById(request.params.id);
+  const deleter = await User.findById(decodedToken.id)
+  const userDelete = request.user 
+
+  if (!blog) {
+    response.status(404).json({ error: "Cant find this blog" })
+  }
+
+  if (decodedToken.id.toString() === blog.user.toString()) {
+    try {
+      await Blog.findByIdAndDelete(request.params.id)
+  
+      deleter.blogs = deleter.blogs.filter(blog => blog.id.toString() !== request.params.id)
+      //204 is used for no content along with 404 so we will use for deletion
+      response.status(204).end();
+    }
+    catch (error) {
+      next(error)
+    }
+  }
+
+  else {
+    response.status(401).json({ error : "You cannot delete this blog" })
+  } 
+
 });
 
 module.exports = blogsRouter;

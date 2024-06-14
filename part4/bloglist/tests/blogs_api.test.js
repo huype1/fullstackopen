@@ -7,15 +7,13 @@ const app = require("../app");
 const api = supertest(app);
 const Blog = require("../models/blog");
 
-
 beforeEach(async () => {
   await Blog.deleteMany({});
 
-
   //cant use forEach loop inside of beforeEach because it'll make multiple asynchronous operation so before Each won't wait for them
-  const blogObject = helper.blogs.map((blog) => new Blog(blog))
-  const promiseArray = blogObject.map(blog => blog.save())
-  await Promise.all(promiseArray)
+  const blogObject = helper.blogs.map((blog) => new Blog(blog));
+  const promiseArray = blogObject.map((blog) => blog.save());
+  await Promise.all(promiseArray);
 
   //if you want to save object in a specific order
   //   for (let note of helper.initialNotes) {
@@ -43,95 +41,129 @@ test("The first blog is about react", async () => {
   assert.strictEqual(title.includes("React patterns"), true);
 });
 
-test("Read only one blog with specific id", async() => {
-  const Blogs = await helper.getAllBlogs()
-  const firstBlog = Blogs[0]
-  const response = await api.get("/api/blogs/5a422a851b54a676234d17f7").expect(200).expect('Content-Type', /application\/json/)
-  assert.deepStrictEqual(response.body, firstBlog)
-})
+test("Read only one blog with specific id", async () => {
+  const Blogs = await helper.getAllBlogs();
+  const firstBlog = Blogs[0];
+  const response = await api
+    .get(`/api/blogs/${firstBlog.id}`)
+    .expect(200)
+    .expect("Content-Type", /application\/json/);
+  assert.deepStrictEqual(response.body, firstBlog);
+});
 
 test("each blog have a distinct id", async () => {
   const allBlogs = await helper.getAllBlogs();
-  const idList = allBlogs.map(blog => blog.id)
+  const idList = allBlogs.map((blog) => blog.id);
 
   const checkid = (idList) => {
     const set = new Set();
     for (let id in idList) {
       if (set.has(id)) {
         return false;
-      }
-      else {
+      } else {
         set.add(id);
       }
     }
     return true;
-  }
-  assert.strictEqual(checkid(idList), true)
-})
+  };
+  assert.strictEqual(checkid(idList), true);
+});
+let headers;
+describe("create and delete blog", () => {
+  beforeEach(async () => {
+    const newUser = {
+      username: "ilovethiccgirl",
+      name: "huype",
+      password: "lmao",
+    };
+    const newacc = await api.post("/api/users").send(newUser);
 
-test("delete a singular blog", async () => {
+    const login = await api.post("/api/login").send(newUser).expect(200);
+    headers = {
+      Authorization: `Bearer ${login.body.token}`,
+    };
+  });
+
+  test("add a valid blog", async () => {
+    const newBlog = {
+      title: "Canonical string reduction",
+      author: "Edsger W. Dijkstra",
+      url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+      likes: 12,
+    };
+
     await api
-    .delete("/api/blogs/5a422aa71b54a676234d17f8")
-    .expect(204)
+      .post("/api/blogs/")
+      .set(headers)
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
 
-  const after = await helper.getAllBlogs();
-  assert.strictEqual(after.length, helper.blogs.length-1)
+    const response = await helper.getAllBlogs();
+    assert.strictEqual(response.length, helper.blogs.length + 1);
+    const content = response.map((blog) => blog.title);
+    assert(content.includes("Canonical string reduction"));
+  });
 
-  const content = after.map((blog) => blog.title);
-  assert(!content.includes("Go To Statement Considered Harmful"));
-})
+  test("an empty blog will not be added", async () => {
+    const newBlog = {
+      author: "Bruh who tf",
+    };
+    await api.post("/api/blogs").send(newBlog).set(headers).expect(400);
 
+    const response = await helper.getAllBlogs("api/blogs");
+    assert.strictEqual(response.length, helper.blogs.length);
+  });
 
-test("add a valid blog", async () => {
-  const newBlog = {
-    title: "Canonical string reduction",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-    likes: 12,
-  };
+  test("delete a singular blog", async () => {
 
-await api
-    .post("/api/blogs/")
-    .send(newBlog)
-    .expect(201)
-    .expect("Content-Type", /application\/json/);
+    const newBlog = {
+      title:"This shit always give 500",
+      author:"Kanye East",
+      url:"http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+      likes:12
+    }
 
-  const response = await helper.getAllBlogs();
-  assert.strictEqual(response.length, helper.blogs.length + 1);
-  const content = response.map((blog) => blog.title);
-  assert(content.includes("Canonical string reduction"));
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set(headers)
+      .expect(201)
 
-});
+    const allBlogs = await helper.getAllBlogs()
+    const blogToDelete = allBlogs.find(blog => blog.title === newBlog.title)
 
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set(headers)
+      .expect(204)
+    
+    const after = await helper.getAllBlogs();
+    assert.strictEqual(after.length, helper.blogs.length);
 
-test("an empty blog will not be added", async () => {
-  const newBlog = {
-    author: "Bruh who tf"
-  };
-  await api.post("/api/blogs").send(newBlog).expect(400);
+    const content = after.map((blog) => blog.title);
+    assert(!content.includes("This shit always give 500"));
+  });
 
-  const response = await helper.getAllBlogs('api/blogs');
-  assert.strictEqual(response.length, helper.blogs.length);
-});
+  test("add blog likes when it doesn't have one", async () => {
+    const newBlog = {
+      title: "Canonical string reduction",
+      author: "Edsger W. Dijkstra",
+      url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+    };
 
-test("add blog likes when it doesn't have one", async () => {
-  const newBlog = {
-    title: "Canonical string reduction",
-    author: "Edsger W. Dijkstra",
-    url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-  };
+    await api
+      .post("/api/blogs/")
+      .send(newBlog)
+      .expect(201)
+      .set(headers)
+      .expect("Content-Type", /application\/json/);
 
-  await api
-    .post("/api/blogs/")
-    .send(newBlog)
-    .expect(201)
-    .expect("Content-Type", /application\/json/);
-
-  const response = await helper.getAllBlogs();
-  assert.strictEqual(response.length, helper.blogs.length + 1);
-  const likes = response.map((blog) => blog.likes);
-  assert(likes.includes(0));
-
+    const response = await helper.getAllBlogs();
+    assert.strictEqual(response.length, helper.blogs.length + 1);
+    const likes = response.map((blog) => blog.likes);
+    assert(likes.includes(0));
+  });
 });
 
 test("update a blog using old id", async () => {
@@ -140,19 +172,16 @@ test("update a blog using old id", async () => {
     author: "Robert C. Martin",
     url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
     likes: 0,
-  }
+  };
 
-  await api
-  .put("/api/blogs/5a422aa71b54a676234d17f8")
-  .send(updatedBlog)
+  await api.put("/api/blogs/5a422aa71b54a676234d17f8").send(updatedBlog);
 
   const response = await helper.getAllBlogs();
   assert.strictEqual(response.length, helper.blogs.length);
 
   const title = response.map((blog) => blog.title);
   assert(title.includes("TDD harms architecture"));
-})
-
+});
 
 after(async () => {
   await mongoose.connection.close();

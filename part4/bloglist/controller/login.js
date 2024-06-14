@@ -9,7 +9,6 @@ loginRouter.post('/', async (request, response) => {
 
     const user = await User.findOne({ username });
     const passwordCorrect = (user === null) ? false : (bcrypt.compare(password, user.passwordHash))
-    console.log(passwordCorrect)
     if (!(user && passwordCorrect)) {
         return response.status(401).json({ error: 'invalid username or password' }
         )
@@ -20,9 +19,8 @@ loginRouter.post('/', async (request, response) => {
     }
     
     //use the secret string of data to encrypt and compare the token, not to mention this token when finshed login will exprire in 1 hour: minutes*hours
-    const token = jwt.sign(userForToken, process.env.SECRET, { expireIn: 60*60 })
+    const token = jwt.sign(userForToken, process.env.SECRET )
 
-    console.log(userForToken)
     response.status(200).send({ token, username: user.username, name: user.name })
 })
 

@@ -23,9 +23,13 @@ app.use(middleware.morgan(':method :url :status :response-time ms - :res[content
 //app.use(express.static('dist'))
 app.use(express.json())
 app.use(cors())
+app.use(middleware.tokenExtractor)
+
+app.use('/api/blogs', middleware.userExtractor,  blogsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
-app.use('/api/blogs', blogsRouter)
+
+// app.use(middleware.)
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
