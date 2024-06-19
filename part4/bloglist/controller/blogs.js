@@ -11,7 +11,7 @@ blogsRouter.get("/", async (request, response) => {
 });
 
 blogsRouter.get("/:id", async (request, response) => {
-  const blog = await Blog.findById(request.params.id);
+  const blog = await Blog.findById(request.params.id).populate('user', {username: 1, name: 1});
   if (blog) {
     response.json(blog);
   } else {
@@ -51,18 +51,15 @@ blogsRouter.post("/", async (request, response) => {
 
 blogsRouter.put("/:id", async (request, response, next) => {
   const blog = request.body 
-  if (isNaN(blog.likes)) {
-    blog.likes = 0;
-  }  
 
-    try {
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
-      new: true,
-      runValidators: true,
-      context: "query",
-    });
+  try {
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  }).populate('user', {username: 1, name: 1, id: 1});
+    response.json(updatedBlog)
 
-    response.json(updatedBlog);
   } catch (error) {
     next(error);
   }
@@ -84,7 +81,6 @@ blogsRouter.delete("/:id", async (request, response, next) => {
   if (decodedToken.id.toString() === blog.user.toString()) {
     try {
       await Blog.findByIdAndDelete(request.params.id)
-  
       deleter.blogs = deleter.blogs.filter(blog => blog.id.toString() !== request.params.id)
       //204 is used for no content along with 404 so we will use for deletion
       response.status(204).end();
