@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import PropTypes from 'prop-types'
+import propTypes from 'prop-types'
 const Blog = ({ blog, updateBlog, currUser, removeBlog }) => {
   const [viewing, setViewing] = useState(false)
+  let buttonLabel = viewing ? 'hide' : 'view'
   let showDeletion = { display: 'none' }
   const blogStyle = {
     paddingTop: 10,
@@ -11,23 +12,19 @@ const Blog = ({ blog, updateBlog, currUser, removeBlog }) => {
     marginBottom: 5
   }
 
-  const hideWhenView = { display: viewing ? 'none' : '' }
   const showWhenView = { display: viewing ? '' : 'none' }
-  if (blog.user) {
+ if (blog.user) {
     showDeletion = { display: (currUser.username === blog.user.username) ? '' : 'none' }
-  }
+  } 
+  const toggleViewing = () => setViewing(!viewing)
 
   const likeBlog = (event) => {
     event.preventDefault()
     const newLike = blog.likes + 1
-    const userId = blog.user.id
+
     updateBlog({
-      title: blog.title,
-      author: blog.author,
-      url: blog.url,
+      ...blog,
       likes: newLike,
-      userId: userId,
-      id: blog.id,
     })
   }
 
@@ -39,18 +36,15 @@ const Blog = ({ blog, updateBlog, currUser, removeBlog }) => {
   }
 
   return (
-    <div style={blogStyle} key={blog.id}>
-      <div style={hideWhenView}>
-        {blog.title} {blog.author}
-        <button onClick={() => setViewing(true)}>view</button>
-      </div>
+    <div style={blogStyle} className='blog' key={blog.id}>
+      {blog.title} {blog.author}
+      <button onClick={toggleViewing}>{buttonLabel}</button>
 
-      <div style={showWhenView}>
-        {blog.title} {blog.author}
-        <button onClick={() => setViewing(false)}>hide</button><div>
+      <div style={showWhenView} className='showOnClick'>
+        <div>
           <div>{blog.url}</div>
           <div>likes {blog.likes} <button onClick={likeBlog}>like</button></div>
-          <div>{blog.user ? blog.user.name: ''}</div>
+          <div>{blog.user ? blog.user.name : ''}</div>
           <button style={showDeletion} onClick={deleteBlog}>remove</button>
         </div>
       </div>
@@ -60,9 +54,9 @@ const Blog = ({ blog, updateBlog, currUser, removeBlog }) => {
 
 export default Blog
 
-Blog.PropTypes = {
-  blog: PropTypes.object.isRequired,
-  updateBlog: PropTypes.func.isRequired,
-  currUser: PropTypes.object.isRequired,
-  removeBlog: PropTypes.func.isRequired
+Blog.propTypes = {
+  blog: propTypes.object.isRequired,
+  updateBlog: propTypes.func.isRequired,
+  currUser: propTypes.object.isRequired,
+  removeBlog: propTypes.func.isRequired
 }

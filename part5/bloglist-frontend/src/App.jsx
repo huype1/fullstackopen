@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect,useRef } from 'react'
 import './index.css'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
@@ -14,6 +14,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [user, setUser] = useState(null)
   const [problem, setProblem] = useState(null)
+  const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
@@ -56,6 +57,7 @@ const App = () => {
 
 
   const addBlog = async (blogObject) => {
+    blogFormRef.current.toggleVisibility()
     await blogService.create(blogObject)
     setBlogs(blogs.concat(blogObject))
     setProblem('newBlogAdded')
@@ -67,7 +69,15 @@ const App = () => {
 
   const likeBlog = async (changedBlog) => {
     try {
-      const newBlog = await blogService.update(changedBlog)
+      const tempBlog = {
+        title: changedBlog.title,
+        author: changedBlog.author,
+        url: changedBlog.url,
+        likes: changedBlog.likes,
+        userId: changedBlog.user.id,
+        id: changedBlog.id,
+      }
+      const newBlog = await blogService.update(tempBlog)
       //you need to set it with newBlog which was returned from server
       //because the changed blog only have an id collumn
       setBlogs(blogs.map(blog => blog.id === newBlog.id ? newBlog : blog))
@@ -133,7 +143,7 @@ const App = () => {
           <button onClick={handleLogout}>logout</button>
         </div>
 
-        <Togglable buttonLabel='new blog'>
+        <Togglable buttonLabel='new blog' ref={blogFormRef}>
           <CreateBlogForm createBlog={addBlog}/>
         </Togglable>
 
