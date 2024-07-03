@@ -9,13 +9,15 @@ const Blog = ({ blog, updateBlog, currUser, removeBlog }) => {
     paddingLeft: 2,
     border: 'solid',
     borderWidth: 1,
-    marginBottom: 5
+    marginBottom: 5,
   }
 
   const showWhenView = { display: viewing ? '' : 'none' }
- if (blog.user) {
-    showDeletion = { display: (currUser.username === blog.user.username) ? '' : 'none' }
-  } 
+  if (blog.user) {
+    showDeletion = {
+      display: currUser.username === blog.user.username ? '' : 'none',
+    }
+  }
   const toggleViewing = () => setViewing(!viewing)
 
   const likeBlog = (event) => {
@@ -36,16 +38,19 @@ const Blog = ({ blog, updateBlog, currUser, removeBlog }) => {
   }
 
   return (
-    <div style={blogStyle} className='blog' key={blog.id}>
+    <div style={blogStyle} className="blog" key={blog.id}>
       {blog.title} {blog.author}
       <button onClick={toggleViewing}>{buttonLabel}</button>
-
-      <div style={showWhenView} className='showOnClick'>
+      <div style={showWhenView} className="showOnClick">
         <div>
           <div>{blog.url}</div>
-          <div>likes {blog.likes} <button onClick={likeBlog}>like</button></div>
+          <div>
+            likes {blog.likes} <button onClick={likeBlog}>like</button>
+          </div>
           <div>{blog.user ? blog.user.name : ''}</div>
-          <button style={showDeletion} onClick={deleteBlog}>remove</button>
+          <button style={showDeletion} onClick={deleteBlog} className='remove'>
+            remove
+          </button>
         </div>
       </div>
     </div>
@@ -58,5 +63,5 @@ Blog.propTypes = {
   blog: propTypes.object.isRequired,
   updateBlog: propTypes.func.isRequired,
   currUser: propTypes.object.isRequired,
-  removeBlog: propTypes.func.isRequired
+  removeBlog: propTypes.func.isRequired,
 }

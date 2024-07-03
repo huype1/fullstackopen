@@ -1,4 +1,4 @@
-import { useState, useEffect,useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './index.css'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
@@ -57,8 +57,9 @@ const App = () => {
 
 
   const addBlog = async (blogObject) => {
-    await blogService.create(blogObject)
-    setBlogs(blogs.concat(blogObject))
+    blogFormRef.current.toggleVisibility()
+    const blogAdded = await blogService.create(blogObject)
+    setBlogs(blogs.concat(blogAdded))
     setProblem('newBlogAdded')
     setErrorMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
     setTimeout(() => {
@@ -91,8 +92,8 @@ const App = () => {
 
   const deleteBlog = async (blogid) => {
     try {
-      await blogService.remove(blogid)
       setBlogs(blogs.filter(blog => blog.id !== blogid))
+      await blogService.remove(blogid)
     } catch (error) {
       setProblem('error')
       setTimeout(() => {

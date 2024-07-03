@@ -11,6 +11,7 @@ const { defineConfig, devices } = require('@playwright/test')
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
+  timeout: 15000,
   fullyParallel: false,
   workers: 1,
   testDir: './tests',

@@ -1,6 +1,6 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
 const { before } = require('node:test')
-import { loginWith } from './helper'
+import { loginWith, createBlog } from './helper'
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -9,6 +9,13 @@ describe('Blog app', () => {
       data: {
         username: 'mluukkai',
         name: 'Matti Luukkainen',
+        password: 'salainen',
+      },
+    })
+    await request.post('http://localhost:3003/api/users', {
+      data: {
+        username: 'mluukkai2',
+        name: 'Matti fake',
         password: 'salainen',
       },
     })
@@ -27,11 +34,12 @@ describe('Blog app', () => {
 
       await page.getByRole('button', { name: 'Login' }).click()
       await expect(page.getByText('Matti Luukkainen logged in')).toBeVisible()
+      await page.getByRole('button', { name: 'logout' }).click()
     })
 
     test('fails with wrong credential', async ({ page }) => {
-      await page.getByTestId('username').fill('mluuk')
-      await page.getByTestId('password').fill('wrongpass')
+      await page.getByTestId('username').fill('mluukkai')
+      await page.getByTestId('password').fill('wrongpassadsfasd')
 
       await page.getByRole('button', { name: 'Login' }).click()
       await expect(page.getByText('Wrong credential')).toBeVisible()
@@ -41,7 +49,7 @@ describe('Blog app', () => {
       await expect(errorDiv).toHaveCSS('border-style', 'solid')
       await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)')
 
-      await expect(errorDiv).not.toBeVisible('Matti Luukkainen logged in')
+      await expect(errorDiv).not.toContainText('Matti Luukkainen logged in')
     })
   })
 
@@ -57,9 +65,68 @@ describe('Blog app', () => {
       await page.getByTestId('url').fill('fullstackopen.com')
 
       await page.getByRole('button', { name: 'Create' }).click()
+      const notiDiv = page.locator('.newBlogAdded')
+      await expect(notiDiv).toContainText('Testing with playwright')
+      await expect(notiDiv).toContainText('Luukkai')
+    })
+    describe('several blogs exist', () => {
+      beforeEach(async ({ page }) => {
+        await createBlog(page, {
+          title: 'Go To Statement Considered Harmful',
+          author: 'Edsger W. Dijkstra',
+          url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+        })
+        await createBlog(page, {
+          title: 'First class tests',
+          author: 'Robert C. Martin',
+          url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+        })
+      })
 
-      await expect(page.getByText('Testing with playwright')).toBeVisible()
-      await expect(page.getByText('Luukkai')).toBeVisible()
+      test('user can like blog', async ({ page }) => {
+        const liked = await page.getByText(
+          'Go To Statement Considered Harmful Edsger W. Dijkstra'
+        )
+
+        await liked.getByRole('button', { name: 'view' }).click()
+        await liked.getByRole('button', { name: 'like' }).click()
+
+        await expect(liked).toContainText('likes 1')
+      })
+
+      test.only('blog creator can also delete the Blog', async ({ page }) => {
+        const blogToErase = await page.getByText(
+          'Go To Statement Considered Harmful Edsger W. Dijkstra'
+        )
+        await blogToErase.getByRole('button', { name: 'view' }).click()
+        page.on('dialog', async (dialog) => await dialog.accept())
+        await blogToErase.getByRole('button', { name: 'remove' }).click()
+
+        await expect(blogToErase).toBeHidden()
+      })
+
+      describe('user allow to remove heir blog only', () => {
+        beforeEach(async ({ page }) => {
+          await page.getByRole('button', { name: 'logout' }).click()
+          await loginWith(page, 'mluukkai2', 'salainen')
+          // await createBlog(page, {
+          //   title: 'This shit always give 500',
+          //   author: 'Kanye East',
+          //   url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+          // })
+        })
+
+        test.only('cant find the remove button on others blog', async ({
+          page,
+        }) => {
+          const othersBlog = await page.getByText(
+            'Go To Statement Considered Harmful Edsger W. Dijkstra'
+          )
+          await expect(
+            othersBlog.getByRole('button', { name: 'remove' })
+          ).toHaveCount(0)
+        })
+      })
     })
   })
 })

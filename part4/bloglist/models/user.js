@@ -26,8 +26,8 @@ userSchema.set('toJSON', {
         returnedObject.id = returnedObject._id.toString()
         delete returnedObject._id
         delete returnedObject.__v
-        //you cannot show passwordHash
-        delete returnedObject.passwordHash
+        // //you cannot show passwordHash
+        // delete returnedObject.passwordHash
     }
 })
 
