@@ -7,15 +7,15 @@ describe('Blog app', () => {
     await request.post('http://localhost:3003/api/testing/reset')
     await request.post('http://localhost:3003/api/users', {
       data: {
-        username: 'mluukkai',
-        name: 'Matti Luukkainen',
+        username: 'mluukkai2',
+        name: 'Matti fake',
         password: 'salainen',
       },
     })
     await request.post('http://localhost:3003/api/users', {
       data: {
-        username: 'mluukkai2',
-        name: 'Matti fake',
+        username: 'mluukkai',
+        name: 'Matti Luukkainen',
         password: 'salainen',
       },
     })
@@ -81,6 +81,11 @@ describe('Blog app', () => {
           author: 'Robert C. Martin',
           url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
         })
+        await createBlog(page, {
+          title: 'This shit always give 500',
+          author: 'Kanye East',
+          url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+        })
       })
 
       test('user can like blog', async ({ page }) => {
@@ -94,7 +99,7 @@ describe('Blog app', () => {
         await expect(liked).toContainText('likes 1')
       })
 
-      test.only('blog creator can also delete the Blog', async ({ page }) => {
+      test('blog creator can also delete the Blog', async ({ page }) => {
         const blogToErase = await page.getByText(
           'Go To Statement Considered Harmful Edsger W. Dijkstra'
         )
@@ -109,23 +114,45 @@ describe('Blog app', () => {
         beforeEach(async ({ page }) => {
           await page.getByRole('button', { name: 'logout' }).click()
           await loginWith(page, 'mluukkai2', 'salainen')
-          // await createBlog(page, {
-          //   title: 'This shit always give 500',
-          //   author: 'Kanye East',
-          //   url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
-          // })
         })
 
-        test.only('cant find the remove button on others blog', async ({
-          page,
-        }) => {
+        test('cant find the remove button on others blog', async ({ page }) => {
+          await page.pause()
           const othersBlog = await page.getByText(
             'Go To Statement Considered Harmful Edsger W. Dijkstra'
           )
+          await othersBlog.getByRole('button', { name: 'view' }).click()
           await expect(
             othersBlog.getByRole('button', { name: 'remove' })
           ).toHaveCount(0)
         })
+      })
+
+      test.only('blog are sorted based on the number of likes', async ({ page }) => {
+        const mostlike = page.getByText('First class tests Robert C. Martin')
+        const second = page.getByText('Go To Statement Considered Harmful Edsger W. Dijkstra')
+        const third = page.getByText('This shit always give 500 Kanye East')
+
+        await mostlike.getByRole('button', { name: 'view' }).click()
+        await mostlike.getByRole('button', { name: 'like' }).click()
+
+        await mostlike.getByRole('button', { name: 'like' }).click()
+
+        await mostlike.getByRole('button', { name: 'like' }).click()
+
+        await second.getByRole('button', { name: 'view' }).click()
+        await second.getByRole('button', { name: 'like' }).click()
+
+        await second.getByRole('button', { name: 'like' }).click()
+
+
+        await third.getByRole('button', { name: 'view' }).click()
+        await third.getByRole('button', { name: 'like' }).click()
+        await page.pause()
+        const blog = await page.locator('.blog').all()
+        await expect(blog[0]).toContainText('This shit always give 500 Kanye East')
+        await expect(blog[1]).toContainText('Go To Statement Considered Harmful Edsger W. Dijkstra')
+        await expect(blog[2]).toContainText('First class tests Robert C. Martin')
       })
     })
   })

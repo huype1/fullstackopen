@@ -80,7 +80,7 @@ const App = () => {
       const newBlog = await blogService.update(tempBlog)
       //you need to set it with newBlog which was returned from server
       //because the changed blog only have an id collumn
-      setBlogs(blogs.map(blog => blog.id === newBlog.id ? newBlog : blog))
+      setBlogs(blogs.map(blog => blog.id === newBlog.id ? newBlog : blog).sort((a,b) => a.likes - b.likes))
     }
     catch (error) {
       setProblem('error')
