@@ -19,7 +19,7 @@ loginRouter.post('/', async (request, response) => {
     }
     
     //use the secret string of data to encrypt and compare the token, not to mention this token when finshed login will exprire in 1 hour: minutes*hours
-    const token = jwt.sign(userfortoken, process.env.SECRET , { expiresIn: '1h' })
+    const token = jwt.sign(userfortoken, process.env.SECRET )
 
     response.status(200).send({ token, username: user.username, name: user.name })
 })
