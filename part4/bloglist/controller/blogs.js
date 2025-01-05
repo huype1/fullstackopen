@@ -19,6 +19,31 @@ blogsRouter.get("/:id", async (request, response) => {
   }
 });
 
+blogsRouter.post('/:id/comments', async (req, res, next) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    const { comment } = req.body;
+    
+    blog.comments = blog.comments.concat(comment);
+    
+    const updatedBlog = await blog.save();
+    
+    const populatedBlog = await updatedBlog.populate('user', {
+      username: 1, 
+      name: 1, 
+      id: 1
+    });
+
+    res.json(populatedBlog);
+  } catch (error) {
+    next(error);
+  }
+});
 
 blogsRouter.post("/", async (request, response) => {
   const body = request.body;
@@ -36,7 +61,8 @@ blogsRouter.post("/", async (request, response) => {
     author: body.author,
     url: body.url,
     likes: body.likes,
-    user: user
+    user: user,
+    comments: [],
   });
   
   if (isNaN(blog.likes)) {
@@ -63,16 +89,14 @@ blogsRouter.put("/:id", async (request, response, next) => {
   } catch (error) {
     next(error);
   }
-
-  
 });
+
 
 blogsRouter.delete("/:id", async (request, response, next) => {
 
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
   const blog = await Blog.findById(request.params.id);
   const deleter = await User.findById(decodedToken.id)
-  const userDelete = request.user 
 
   if (!blog) {
     response.status(404).json({ error: "Cant find this blog" })

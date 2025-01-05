@@ -33,6 +33,7 @@ const userExtractor = async (request, response, next) => {
 }; 
 
 const unknownEndpoint = (request, response) => {
+    console.log(response)
     response.status(404).send({ error: 'unknown endpoint' }).end()
 }
 

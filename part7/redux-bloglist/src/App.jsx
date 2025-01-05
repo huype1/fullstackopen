@@ -1,10 +1,27 @@
-import { useState, useEffect, useRef } from 'react'
-import './index.css'
+import React, { useState, useEffect, useRef } from 'react'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link as RouterLink,
+} from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { BrowserRouter as Router, Routes, Route, Link, useMatch } from 'react-router-dom'
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  TextField,
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Link,
+  Stack,
+} from '@mui/material'
 import { setNotification } from './reducers/notificationReducer'
 import { initializeBlog } from './reducers/blogReducer'
 import { initializeUsers } from './reducers/usersReducer'
+import { setSignedIn } from './reducers/userReducer'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -12,17 +29,12 @@ import Blogs from './components/Blogs'
 import Notification from './components/Notification'
 import Users from './components/Users'
 import User from './components/User'
-
-import { setSignedIn } from './reducers/userReducer'
 import Blog from './components/Blog'
 
 const App = () => {
   const dispatch = useDispatch()
-
-
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-
   const blogFormRef = useRef()
 
   useEffect(() => {
@@ -30,18 +42,12 @@ const App = () => {
     dispatch(initializeUsers())
   }, [dispatch])
 
-
-
   const user = useSelector(state => state.user)
   const users = useSelector(state => state.users)
   const blogs = useSelector(state => state.blogs)
 
-
-
   useEffect(() => {
-    //use for login
     const loggedUserJSON = window.localStorage.getItem('loggedBlogsUser')
-
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       dispatch(setSignedIn(user))
@@ -68,64 +74,128 @@ const App = () => {
     window.location.reload()
   }
 
-  const loginform = () => {
-    return (
-      <>
-        <h2>log in to application</h2>
+  const LoginForm = () => (
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
+        <Typography component="h1" variant="h5">
+          Log in to application
+        </Typography>
         <Notification />
-        <form onSubmit={handleLogin}>
-          <div>
-            Username
-            <input
-              type="text"
-              data-testid="username"
-              onChange={({ target }) => {
-                setUsername(target.value)
-              }}></input>
-          </div>
-          <div>
-            Password
-            <input
-              type="text"
-              data-testid="password"
-              onChange={({ target }) => {
-                setPassword(target.value)
-              }}></input>
-          </div>
+        <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Username"
+            data-testid="username"
+            onChange={({ target }) => setUsername(target.value)}
+            autoFocus
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Password"
+            type="password"
+            data-testid="password"
+            onChange={({ target }) => setPassword(target.value)}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}>
+            Login
+          </Button>
+        </Box>
+      </Box>
+    </Container>
+  )
 
-          <button type="submit">Login</button>
-        </form>
-      </>
-    )
-  }
-
-  const titleSection = () => {
-    return (
-      <>
-        <h2>blogs</h2>
-        <Notification />
-        <div>
-          {user.name} logged in
-          <button onClick={handleLogout}>logout</button>
-        </div>
-      </>
-    )
-  }
+  const Navigation = () => (
+    <AppBar position="static">
+      <Toolbar>
+        <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
+          <Link
+            component={RouterLink}
+            to="/"
+            color="inherit"
+            sx={{ textDecoration: 'none' }}>
+            Home
+          </Link>
+          <Link
+            component={RouterLink}
+            to="/blogs"
+            color="inherit"
+            sx={{ textDecoration: 'none' }}>
+            Blogs
+          </Link>
+          <Link
+            component={RouterLink}
+            to="/users"
+            color="inherit"
+            sx={{ textDecoration: 'none' }}>
+            Users
+          </Link>
+        </Box>
+        {user ? (
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Typography>{user.name} logged in</Typography>
+            <Button color="inherit" onClick={handleLogout}>
+              Logout
+            </Button>
+          </Stack>
+        ) : (
+          <Link
+            component={RouterLink}
+            to="/login"
+            color="inherit"
+            sx={{ textDecoration: 'none' }}>
+            Login
+          </Link>
+        )}
+      </Toolbar>
+    </AppBar>
+  )
 
   return (
     <Router>
-      {user === null ? loginform() : titleSection()}
-      <Routes>
-        <Route path="/users" element={<Users users={users}/>} />
-        <Route path="/users/:id" element={<User users={users} blogs={blogs} />} />
-        <Route
-          path="/"
-          element={
-            <Blogs blogFormRef={blogFormRef} user={user} blogs={blogs} />
-          }
-        />
-        <Route path="/blogs/:id" element={<Blog blogs={blogs} currUser={user}/>} />
-      </Routes>
+      {user && <Navigation />}
+      <Container sx={{ mt: 3 }}>
+        <Notification />
+        <Routes>
+          <Route path="/login" element={!user && <LoginForm />} />
+          <Route path="/users" element={<Users users={users} />} />
+          <Route
+            path="/users/:id"
+            element={<User users={users} blogs={blogs} />}
+          />
+          <Route
+            path="/blogs"
+            element={
+              <Blogs blogFormRef={blogFormRef} user={user} blogs={blogs} />
+            }
+          />
+          <Route
+            path="/blogs/:id"
+            element={<Blog blogs={blogs} currUser={user} />}
+          />
+          <Route
+            path="/"
+            element={
+              <Typography variant="h4" component="h1" gutterBottom>
+                Welcome to the Blog App
+              </Typography>
+            }
+          />
+        </Routes>
+      </Container>
     </Router>
   )
 }

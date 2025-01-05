@@ -4,12 +4,18 @@ import Blog from './Blog'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { setNotification } from '../reducers/notificationReducer'
-import {
-  createNewBlog,
-  updateBlog,
-  deleteBlog,
-} from '../reducers/blogReducer'
-import { Link } from 'react-router-dom'
+import { createNewBlog, updateBlog, deleteBlog } from '../reducers/blogReducer'
+
+import { Link as RouterLink } from 'react-router-dom';
+import { 
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Link,
+  Container,
+  Divider
+} from '@mui/material';
 
 const Blogs = ({ blogFormRef, blogs }) => {
   const dispatch = useDispatch()
@@ -39,17 +45,43 @@ const Blogs = ({ blogFormRef, blogs }) => {
   }
 
   return (
-    <>
-      <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <CreateBlogForm createBlog={createBlog} />
-      </Togglable>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Togglable buttonLabel="new blog" ref={blogFormRef}>
+          <CreateBlogForm createBlog={createBlog} />
+        </Togglable>
+      </Box>
 
-      {blogs.map(blog => (
-        <div style={blogStyle} className="blog" key={blog.id}>
-          <Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author}</Link>
-        </div>
-      ))}
-    </>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {blogs.map(blog => (
+          <Card
+            key={blog.id}
+            sx={{
+              '&:hover': {
+                boxShadow: 3,
+                transition: 'box-shadow 0.3s ease-in-out',
+              },
+            }}>
+            <CardContent>
+              <Link
+                component={RouterLink}
+                to={`/blogs/${blog.id}`}
+                sx={{
+                  textDecoration: 'none',
+                  color: 'text.primary',
+                  '&:hover': {
+                    color: 'primary.main',
+                  },
+                }}>
+                <Typography variant="h6">
+                  {blog.title} {blog.author}
+                </Typography>
+              </Link>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
+    </Container>
   )
 }
 export default Blogs
