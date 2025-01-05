@@ -8,7 +8,7 @@ const setToken = newToken => {
 
 const getAll = async () => {
   const request = await axios.get(baseUrl)
-  const sortedLikes = request.data.sort((a,b) => a.likes - b.likes)
+  const sortedLikes = request.data.sort((a,b) => b.likes - a.likes)
   return sortedLikes
 }
 
