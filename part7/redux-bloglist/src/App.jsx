@@ -30,6 +30,57 @@ import Notification from './components/Notification'
 import Users from './components/Users'
 import User from './components/User'
 import Blog from './components/Blog'
+const LoginForm = ({
+  username,
+  password,
+  setUsername,
+  setPassword,
+  handleLogin,
+}) => (
+  <div>
+    <form onSubmit={handleLogin}>
+      <label htmlFor="username" style={{ display: 'block', marginBottom: 4 }}>
+        Username
+      </label>
+      <input
+        id="username"
+        name="username"
+        type="text"
+        value={username}
+        onChange={e => setUsername(e.target.value)}
+        required
+        style={{
+          width: '100%',
+          padding: '8px',
+          fontSize: '16px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+      <label htmlFor="password" style={{ display: 'block', marginBottom: 4 }}>
+        Password
+      </label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        required
+        style={{
+          width: '100%',
+          padding: '8px',
+          fontSize: '16px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+      <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+        Login
+      </Button>
+    </form>
+  </div>
+)
 
 const App = () => {
   const dispatch = useDispatch()
@@ -73,50 +124,6 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogsUser')
     window.location.reload()
   }
-
-  const LoginForm = () => (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}>
-        <Typography component="h1" variant="h5">
-          Log in to application
-        </Typography>
-        <Notification />
-        <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Username"
-            data-testid="username"
-            onChange={({ target }) => setUsername(target.value)}
-            autoFocus
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Password"
-            type="password"
-            data-testid="password"
-            onChange={({ target }) => setPassword(target.value)}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}>
-            Login
-          </Button>
-        </Box>
-      </Box>
-    </Container>
-  )
 
   const Navigation = () => (
     <AppBar position="static">
@@ -166,11 +173,24 @@ const App = () => {
 
   return (
     <Router>
-      {user && <Navigation />}
+      <Navigation />
       <Container sx={{ mt: 3 }}>
         <Notification />
         <Routes>
-          <Route path="/login" element={!user && <LoginForm />} />
+          <Route
+            path="/login"
+            element={
+              !user && (
+                <LoginForm
+                  username={username}
+                  password={password}
+                  setUsername={setUsername}
+                  setPassword={setPassword}
+                  handleLogin={handleLogin}
+                />
+              )
+            }
+          />
           <Route path="/users" element={<Users users={users} />} />
           <Route
             path="/users/:id"
@@ -189,9 +209,11 @@ const App = () => {
           <Route
             path="/"
             element={
-              <Typography variant="h4" component="h1" gutterBottom>
-                Welcome to the Blog App
-              </Typography>
+              <div>
+                <Typography variant="h4" component="h1" gutterBottom>
+                  Welcome to the Blog App
+                </Typography>
+              </div>
             }
           />
         </Routes>
