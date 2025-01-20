@@ -4,5 +4,5 @@ export const handleArguments = (args: string[]): number[] => {
     if (isNaN(Number(args[i]))) throw new Error('Input values needed to be numbers!');
   }
   return args.slice(2).map(arg => Number(arg));
-}
+};
 export default handleArguments;
