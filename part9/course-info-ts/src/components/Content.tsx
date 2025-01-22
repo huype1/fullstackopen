@@ -1,26 +1,19 @@
-interface CoursePart {
-  name: string;
-  exerciseCount: number;
-}
+import { CoursePart } from '../App.tsx'
+import Part from './Part.tsx'
 
-interface ContentProps {
+interface CourseProps {
   courseParts: CoursePart[];
 }
 
-const Content = (props: ContentProps) => {
+const Content = (props: CourseProps) => {
   return (
     <>
-      <p>
-        {props.courseParts[0].name} {props.courseParts[0].exerciseCount}
-      </p>
-      <p>
-        {props.courseParts[1].name} {props.courseParts[1].exerciseCount}
-      </p>
-      <p>
-        {props.courseParts[2].name} {props.courseParts[2].exerciseCount}
-      </p>
-
-    </>
+      {props.courseParts.map((part) => {
+        return (
+          <Part key={part.name} {...part} />
+        )
+      })}
+   </>
   )
 }
 export default Content;
