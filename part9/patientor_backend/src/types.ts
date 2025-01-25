@@ -1,6 +1,3 @@
-import { NewEntrySchema } from './utils';
-import {z} from 'zod';
-
 export interface DiagnoseEntry {
   code: string;
   name: string;
@@ -31,7 +28,6 @@ export interface PatientEntry {
 }
 
 export type NonSensitivePatientEntry = Omit<PatientEntry, 'ssn' | 'entries'>;
-export type NewPatientEntry = z.infer<typeof NewEntrySchema>;
 
 
 export enum HealthCheckRating {
@@ -64,3 +60,9 @@ export type Entry =
   | HospitalEntry
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
+
+// Define special omit for unions
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
+export type NewPatientEntry = UnionOmit<PatientEntry, 'id'>;
+
+
