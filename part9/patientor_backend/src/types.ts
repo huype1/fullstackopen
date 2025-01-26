@@ -1,3 +1,6 @@
+import { NewPatientEntrySchema } from './utils';
+import { z } from 'zod';
+
 export interface DiagnoseEntry {
   code: string;
   name: string;
@@ -63,6 +66,7 @@ export type Entry =
 
 // Define special omit for unions
 type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
-export type NewPatientEntry = UnionOmit<PatientEntry, 'id'>;
+export type NewPatientEntry = z.infer<typeof NewPatientEntrySchema>;
+export type EntryWithoutId = UnionOmit<Entry, 'id'>;
 
 

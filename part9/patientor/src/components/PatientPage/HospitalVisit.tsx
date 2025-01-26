@@ -1,4 +1,4 @@
-import { HospitalEntry } from '../../types';
+import { HospitalEntry } from '../../types.ts';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import { Box } from '@mui/material';
 
