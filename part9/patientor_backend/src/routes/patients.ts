@@ -46,7 +46,6 @@ const errorMiddleware = (error: unknown, _req: Request, res: Response, next: Nex
 };
 
 router.post('/:id/entries', newEntryParser, (req: Request<{id: string},unknown,Entry>, res) => {
-  console.log("works lil nigga");
     const result = patientService.addEntry(req.body, req.params.id);
     res.json(result);
 });
